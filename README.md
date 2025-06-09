@@ -115,31 +115,31 @@ dotnet ef database update
 
 ### **1️⃣ 生產環境部署 (Production)**
 
-*   **Dockerfile**: [`api/Dockerfile.Production`](api/Dockerfile.Production:1)
-*   **Docker Compose**: [`docker-compose.prod.yaml`](docker-compose.prod.yaml:1)
+*   **Dockerfile**: [`api/Dockerfile.Production`](api/Dockerfile.Production)
+*   **Docker Compose**: [`docker-compose.prod.yaml`](docker-compose.prod.yaml)
 
 **機制與作用：**
 
-*   **多階段建置 (Multi-stage builds)**：[`api/Dockerfile.Production`](api/Dockerfile.Production:1) 採用了多階段建置。
+*   **多階段建置 (Multi-stage builds)**：[`api/Dockerfile.Production`](api/Dockerfile.Production) 採用了多階段建置。
     *   **建置階段 (Build Stage)**：使用包含完整 .NET SDK 的映像 (`mcr.microsoft.com/dotnet/sdk:8.0`) 來編譯和發佈應用程式。這個階段會產生最佳化的發行版本。
     *   **執行階段 (Runtime Stage)**：使用僅包含 .NET 執行環境的較小映像 (`mcr.microsoft.com/dotnet/aspnet:8.0`) 來運行已發佈的應用程式。
 *   **優勢**：
     *   **減小映像體積**：最終的生產映像只包含必要的執行環境和應用程式檔案，不包含編譯工具和原始碼，大幅縮小了映像大小。
     *   **提升安全性**：減少了攻擊面，因為生產映像中不包含開發工具和原始碼。
     *   **最佳化效能**：發佈的是最佳化後的應用程式版本。
-*   [`docker-compose.prod.yaml`](docker-compose.prod.yaml:1) 配置了使用 [`api/Dockerfile.Production`](api/Dockerfile.Production:1) 來建置 `api` 服務，包含生產環境所需的配置。
+*   [`docker-compose.prod.yaml`](docker-compose.prod.yaml) 配置了使用 [`api/Dockerfile.Production`](api/Dockerfile.Production) 來建置 `api` 服務，包含生產環境所需的配置。
 
 ### **2️⃣ 開發環境部署 (Development)**
 
-*   **Dockerfile**: [`api/Dockerfile`](api/Dockerfile:1)
-*   **Docker Compose**: [`docker-compose.yaml`](docker-compose.yaml:1)
+*   **Dockerfile**: [`api/Dockerfile`](api/Dockerfile)
+*   **Docker Compose**: [`docker-compose.yaml`](docker-compose.yaml)
 
 **機制與作用：**
 
-*   **單階段建置**：[`api/Dockerfile`](api/Dockerfile:1) 通常用於開發階段，它直接在包含 .NET SDK 的映像中建置並執行應用程式。
+*   **單階段建置**：[`api/Dockerfile`](api/Dockerfile) 通常用於開發階段，它直接在包含 .NET SDK 的映像中建置並執行應用程式。
 *   **快速迭代**：這個 Dockerfile 通常會配置 Volume Mounts，將本機的原始碼目錄掛載到容器中。這樣開發者在修改程式碼後，可以透過 `dotnet watch run` 等工具實現熱重載 (Hot Reload)，無需重新建置整個 Docker 映像即可看到變更，大幅提升開發效率。
 *   **偵錯便利**：由於容器內包含 SDK，方便進行遠端偵錯等開發操作。
-*   [`docker-compose.yaml`](docker-compose.yaml:1) 配置了使用 [`api/Dockerfile`](api/Dockerfile:1) 來建置 `api` 服務，並可能包含開發時所需的工具 (如 Adminer) 和相關的配置，以利於開發和測試。
+*   [`docker-compose.yaml`](docker-compose.yaml) 配置了使用 [`api/Dockerfile`](api/Dockerfile) 來建置 `api` 服務，並可能包含開發時所需的工具 (如 Adminer) 和相關的配置，以利於開發和測試。
 
 ---
 
