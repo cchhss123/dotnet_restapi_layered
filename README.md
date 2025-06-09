@@ -77,8 +77,8 @@
 ## **🛠 安裝與運行**
 ### **1️⃣ 下載專案**
 ```sh
-git clone https://github.com/cchhss123/dotnet_restapi.git
-cd dotnet_restapi
+git clone https://github.com/cchhss123/dotnet_restapi_layered.git
+cd dotnet_restapi_layered
 ```
 
 ### **2️⃣ 啟動 Docker (開發環境)**
