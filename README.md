@@ -3,16 +3,27 @@
 
 ## 🌟 專案特色
 ✅ **基於 ASP.NET Core 8**，提供 RESTful API 支援 `CRUD（建立 / 讀取 / 更新 / 刪除）`
+
 ✅ **採用分層架構**（Controller → Service → Repository），提升程式碼可維護性與擴展性
+
 ✅ **JWT 設定優化**：將 JWT 設定封裝到強型別的 `JwtSettings` 類別，Token 過期時間移至 `appsettings.json`，敏感資訊透過 `.env` 管理
+
 ✅ **使用 JWT 身份驗證**，此專案示範驗證保護 `/users/{id} 的 PUT 與 DELETE 2個api端點` (自訂 JWT 驗證回應中介軟體)
+
 ✅ **完善的 Swagger 文件**：所有 API 端點皆有 `summary` 註解，並設定載入 XML 文件以產生更詳細的 API 文件
+
 ✅ **容器化部署**（Docker Compose 一鍵啟動 `.NET 8 API + SQL Server` ），並提供生產環境的多階段建置 Dockerfile (`api/Dockerfile.Production`) 與 `docker-compose.prod.yaml`
+
 ✅ **SQL Server 2022 整合**，使用 **EF Core Migration** 進行資料庫初始化與版本控制
+
 ✅ **Adminer** 作為 Web UI 管理資料庫工具，簡單易用(本機如有安裝SSMS，亦可連線 127.0.0.1 管理資料庫，帳密請參考api/appsettings.json)
+
 ✅ **支援 API 測試**（Postman、cURL、PowerShell）
+
 ✅ **提供 HTML 頁面呼叫使用 API**（使用者列表:user-list.html, 新增:user-add.html, 編輯:user-edit.html）
+
 ✅ **提供 Swagger UI** 提供直觀的 API 測試介面 (使用 Dockerfile 安裝 Swashbuckle.AspNetCore，確保 Swagger 可用）
+
 ✅ **熱重載**：開發時支援 `dotnet watch run` ，程式碼異動會 hot-reload
 
 ---
@@ -27,38 +38,37 @@
 ## **🔹 目錄結構**
 ```
 .
-├── README.md              # 專案說明文件
-├── docker-compose.yaml    # Docker 啟動設定檔(開發環境, 搭配 api/Dockerfile)
-├── docker-compose.prod.yaml    # Docker 啟動設定檔(生產環境, 搭配 api/Dockerfile.Production)
-├── api/                   # .NET API 原始碼
-│   ├── Dockerfile         # 開發環境 .NET API 的 Dockerfile
-│   ├── Dockerfile.Production # 生產環境 .NET API 的 Dockerfile (多階段建置)
-│   ├── appsettings.json   # 應用程式設定 (JWT 敏感資訊已移至 .env)
-│   ├── api.csproj         # .NET 項目設定
-│   ├── Program.cs         # 主 API 程式
-│   ├── Properties/        # 子目錄:專案屬性
-│   ├── Models/            # 子目錄:資料模型
-│   │   ├── JwtSettings.cs     # JWT 設定強型別類別
-│   ├── Middleware/        # 子目錄:中介軟體
-│   │   ├── JwtAuthMiddleware.cs # JWT 驗證自訂回應中介軟體
-│   ├── Data/              # 子目錄:資料庫上下文與遷移
+├── README.md                    # 專案說明文件
+├── docker-compose.yaml          # Docker 啟動設定檔(開發環境, 搭配 api/Dockerfile)
+├── docker-compose.prod.yaml     # Docker 啟動設定檔(生產環境, 搭配 api/Dockerfile.Production)
+├── api/                         # .NET API 原始碼
+│   ├── Dockerfile               # 開發環境 .NET API 的 Dockerfile
+│   ├── Dockerfile.Production    # 生產環境 .NET API 的 Dockerfile (多階段建置)
+│   ├── appsettings.json         # 應用程式設定 (JWT 敏感資訊已移至 .env)
+│   ├── api.csproj               # .NET 項目設定
+│   ├── Program.cs               # 主 API 程式
+│   ├── Models/                  # 子目錄:資料模型
+│   │   ├── JwtSettings.cs          # JWT 設定強型別類別
+│   ├── Middleware/              # 子目錄:中介軟體
+│   │   ├── JwtAuthMiddleware.cs    # JWT 驗證自訂回應中介軟體
+│   ├── Data/                    # 子目錄:資料庫上下文與遷移
 │   │   ├── ApplicationDbContext.cs # EF Core 資料庫上下文
-│   │   ├── Migrations/        # EF Core 遷移檔案
-│   ├── Repositories/      # 子目錄:資料庫操作介面與實作
-│   │   ├── IUserRepository.cs # 使用者資料庫操作介面
-│   │   ├── UserRepository.cs  # 使用者資料庫操作實作
-│   ├── Services/          # 子目錄:服務類 程式
-│   │   ├── DatabaseService.cs # 資料庫 服務
-│   │   ├── JwtService.cs      # JWT驗證 服務
-│   │   ├── AuthService.cs     # 認證服務
-│   │   ├── UserService.cs     # 使用者服務
-│   ├── Controllers/       # 子目錄:API 控制器
-│       ├── AuthController.cs    # 認證相關API
-│       ├── UsersController.cs   # 使用者相關API
-├── www/                   # html頁面(呼叫 users 相關REST-API功能測試)
-│   ├── user-list.html     # 使用者 列表 html頁面
-│   ├── user-add.html      # 使用者 新增 頁面
-│   ├── user-edit.html     # 使用者 修改 頁面
+│   │   ├── Migrations/             # EF Core 遷移檔案
+│   ├── Repositories/            # 子目錄:資料庫操作介面與實作
+│   │   ├── IUserRepository.cs      # 使用者資料庫操作介面
+│   │   ├── UserRepository.cs       # 使用者資料庫操作實作
+│   ├── Services/                # 子目錄:服務類 程式
+│   │   ├── DatabaseService.cs      # 資料庫 服務
+│   │   ├── JwtService.cs           # JWT驗證 服務
+│   │   ├── AuthService.cs          # 認證服務
+│   │   ├── UserService.cs          # 使用者服務
+│   ├── Controllers/             # 子目錄:API 控制器
+│       ├── AuthController.cs       # 認證相關API
+│       ├── UsersController.cs      # 使用者相關API
+├── www/                         # html頁面(呼叫 users 相關REST-API功能測試)
+│   ├── user-list.html           # 使用者 列表 html頁面
+│   ├── user-add.html            # 使用者 新增 頁面
+│   ├── user-edit.html           # 使用者 修改 頁面
 
 ```
 
