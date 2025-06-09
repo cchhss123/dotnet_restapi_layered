@@ -1,0 +1,30 @@
+# 第一階段：建置應用程式
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# 複製專案文件並還原依賴
+COPY ["api/api.csproj", "api/"]
+RUN dotnet restore "api/api.csproj"
+
+# 複製所有程式碼
+COPY api/. ./api/
+
+# 進入專案目錄並發佈應用程式
+WORKDIR /src/api
+RUN dotnet publish "api.csproj" -c Release -o /app/publish
+
+# 第二階段：建立最終映像檔
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+WORKDIR /app
+
+# 從建置階段複製發佈的應用程式
+COPY --from=build /app/publish .
+
+# 設定環境變數 (如果需要，例如 ASPNETCORE_URLS)
+ENV ASPNETCORE_URLS=http://+:80
+
+# 暴露應用程式端口
+EXPOSE 80
+
+# # 啟動應用程式
+# ENTRYPOINT ["dotnet", "api.dll"]

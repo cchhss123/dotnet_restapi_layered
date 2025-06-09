@@ -1,0 +1,64 @@
+services:
+  sqlsrv2022:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlsrv2022
+    environment:
+      ACCEPT_EULA: 'Y'
+      SA_PASSWORD: 'MSsql2022'
+      # Encrypt: 'no'
+      # MSSQL_PID=Express
+    networks:
+      - default
+    ports:
+      - 1433:1433
+    volumes:
+      - sqlsrv-data:/var/opt/mssql
+
+  adminerdb:
+    image: adminer
+    container_name: adminerdb
+    ports:
+      - "8080:8080"
+    depends_on:
+      - sqlsrv2022
+    networks:
+      - default
+
+  # c_api:
+    # image: mcr.microsoft.com/dotnet/sdk:8.0  # 官方 .NET SDK 映像檔
+    # container_name: c_api
+    # working_dir: /app
+    # volumes:
+    #   - ./api:/app  # 掛載 C# 原始碼
+    # ports:
+    #   - "3000:8080"
+    # depends_on:
+    #   - sqlsrv2022
+    # environment:
+    #   DB_CONNECTION_STRING: "Server=sqlsrv2022;Database=demo;User Id=sa;Password=MSsql2022;TrustServerCertificate=True"
+    # command: ["dotnet", "watch", "run", "--project", "/app/api.csproj"]  # 直接執行 C# 專案，hot-reload
+    # networks:
+    #     - default
+  c_api:
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile
+    container_name: c_api
+    working_dir: /app
+    volumes:
+      - ./api:/app  # 掛載 C# 原始碼
+    ports:
+      - "3000:8080"
+    depends_on:
+      - sqlsrv2022
+    env_file:
+      - .env # Docker Compose 會自動在專案根目錄尋找 .env 檔案
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sqlsrv2022;Database=demo;User Id=sa;Password=MSsql2022;TrustServerCertificate=True
+    command: ["dotnet", "watch", "run", "--project", "/app/api.csproj"]
+        # sh -c "dotnet-ef database update --project /app/api.csproj --startup-project /app/api.csproj && dotnet watch run --project /app/api.csproj"
+    
+    networks:
+      - default
+volumes:
+  sqlsrv-data:

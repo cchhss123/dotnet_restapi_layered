@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>使用者列表</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+  <style>
+    body {
+      background-color: #f8f9fa;
+      padding-top: 70px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- 頂部選單 -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="index.html">管理介面</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle active" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+            使用者管理
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="userDropdown">
+            <li><a class="dropdown-item active" href="user-list.html">使用者列表</a></li>
+            <li><a class="dropdown-item" href="user-add.html">新增使用者</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- 內容 -->
+<div class="container mt-4">
+  <div class="d-flex justify-content-between mb-3">
+    <h1>使用者列表</h1>
+    <a href="user-add.html" class="btn btn-success">新增使用者</a>
+  </div>
+  <!-- <table id="userTable" class="display table table-striped" style="width:100%">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>姓名</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+  </table> -->
+  <table id="userTable" class="display table table-striped" style="width:100%">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>姓名</th>
+        <th>Email</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+  </table>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
+<script>
+$(document).ready(function() {
+  const table = $('#userTable').DataTable({
+    ajax: {
+      url: 'http://localhost:3000/users',
+      type: 'GET',
+      dataSrc: 'data'
+    },
+    columns: [
+      { data: 'id' },
+      { data: 'name' },
+      { data: 'email' },
+      {
+        data: null,
+        render: function(data, type, row) {
+          return `
+            <button class="btn btn-sm btn-primary edit-btn" data-id="${row.id}">編輯</button>
+            <button class="btn btn-sm btn-danger delete-btn" data-id="${row.id}">刪除</button>
+          `;
+        }
+      }
+    ]
+  });
+
+  // 編輯
+  $('#userTable').on('click', '.edit-btn', function() {
+    const userId = $(this).data('id');
+    window.location.href = `user-edit.html?id=${userId}`;
+  });
+
+  // 取得 Token，若無則自動取得
+  function getToken(callback) {
+      let token = localStorage.getItem("jwt_token");
+
+      if (!token) {
+          $.ajax({
+              url: "http://localhost:3000/auth",
+              type: "POST",
+              contentType: "application/json",
+              data: JSON.stringify({ Account: "api", Password: "test" }),
+              success: function(response) {
+                  localStorage.setItem("jwt_token", response.token);
+                  callback(response.token);
+              },
+              error: function() {
+                  alert("登入失敗，無法取得 Token！");
+              }
+          });
+      } else {
+          callback(token);
+      }
+  }
+
+  // 刪除使用者
+  $('#userTable').on('click', '.delete-btn', function() {
+      const userId = $(this).data('id');
+
+      if (confirm('確定要刪除此使用者嗎？')) {
+          // 先取得 Token
+          getToken(function(token) {
+              $.ajax({
+                  url: `http://localhost:3000/users/${userId}`,
+                  type: 'DELETE',
+                  headers: { "Authorization": "Bearer " + token }, // 🔹 加入 JWT Token
+                  success: function() {
+                      alert('刪除成功！');
+                      table.ajax.reload();
+                  },
+                  error: function(xhr) {
+                      if (xhr.status === 401) { 
+                          localStorage.removeItem("jwt_token"); // 🔹 Token 失效，刪除並重新獲取
+                          alert("未授權，重新登入！");
+                          getToken(function(newToken) {
+                              $('#userTable .delete-btn[data-id="' + userId + '"]').click(); // 🔹 重新執行刪除
+                          });
+                      } else {
+                          alert('刪除失敗: ' + xhr.responseText);
+                      }
+                  }
+              });
+          });
+      }
+  });
+
+});
+</script>
+
+
+</body>
+</html>

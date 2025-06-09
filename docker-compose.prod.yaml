@@ -1,0 +1,44 @@
+services:
+  sqlsrv2022:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlsrv2022_prod
+    environment:
+      ACCEPT_EULA: 'Y'
+      SA_PASSWORD: 'MSsql2022'
+    networks:
+      - default
+    ports:
+      - 1433:1433
+    volumes:
+      - sqlsrv-data-prod:/var/opt/mssql
+
+  adminerdb:
+    image: adminer
+    container_name: adminerdb_prod
+    ports:
+      - "8080:8080"
+    depends_on:
+      - sqlsrv2022
+    networks:
+      - default
+
+  c_api:
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile.Production
+    container_name: c_api_prod
+    ports:
+      - "3000:80" # 在生產環境中，應用程式通常監聽 80 端口
+    depends_on:
+      - sqlsrv2022
+    env_file:
+      - .env # Docker Compose 會自動在專案根目錄尋找 .env 檔案
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sqlsrv2022;Database=demo;User Id=sa;Password=MSsql2022;TrustServerCertificate=True
+    command: ["dotnet", "api.dll"]
+    networks:
+      - default
+    restart: always # 生產環境建議設定重啟策略
+
+volumes:
+  sqlsrv-data-prod:
